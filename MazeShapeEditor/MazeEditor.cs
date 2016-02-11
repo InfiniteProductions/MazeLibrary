@@ -29,25 +29,13 @@ namespace MazeShapeEditor
         public Byte value;
     }
 
-
+    // no longer needed/used
     public struct MazeLayout
     {
         public UInt16 width, height;
         public Byte[,] layout;
     }
 
-
-    //public struct GridData
-    //{
-    //    public UInt16 offsetx,
-    //                offsety,
-    //                gridsizeH,
-    //                gridsizeV,
-    //                tilesizeH,
-    //                tilesizeV,
-    //                actualWidth,
-    //                actualHeight;
-    //};
 
     public class MazeEditor : Game
     {
@@ -72,15 +60,26 @@ namespace MazeShapeEditor
         List<GridCell> CellsToDraw;
         Byte currentColor;
 
+        // number of cells horizontally & vertically
         Byte layoutWidth, layoutHeight;
+
         Byte[,] layout;
+        
+        // file index for I/O (from 0 to 9)
         Byte currentLayoutIndex;
+
+        // background rectangle of the displayd grid
+        UInt16 backgroundWidth, backgroundHeight;
+
+        bool layoutHasBeenUpdated = false;
+
 
         public MazeEditor()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
 
+            //needed ?
             g_data.offsetx = 100;
             g_data.offsety = 80;
             g_data.gridsizeH = 1;
@@ -190,20 +189,24 @@ namespace MazeShapeEditor
 
             if (KeyboardInput.IsKeyDown(Keys.A) && PreviousKeyboardInput.IsKeyUp(Keys.A))
             {
-                //UInt16 nbcellsH, UInt16 nbcellsV, UInt16 width, UInt16 height
                 Ingrid.updateGrid(layoutWidth, layoutHeight, 600, 400);
             }
 
-            // reset layout after resize => clean upd cells list
+            // reset layout after resize => clean upd cells list NO
+            // keep list, adjust cell sizes !
             if (KeyboardInput.IsKeyDown(Keys.U) && PreviousKeyboardInput.IsKeyUp(Keys.U))
             {
                 layoutWidth--;
-                CellsToDraw.Clear();
+                //CellsToDraw.Clear();
+
+                layoutHasBeenUpdated = true;
             }
             if (KeyboardInput.IsKeyDown(Keys.I) && PreviousKeyboardInput.IsKeyUp(Keys.I))
             {
                 layoutWidth++;
-                CellsToDraw.Clear();
+                //CellsToDraw.Clear();
+
+                layoutHasBeenUpdated = true;
             }
 
             if (layoutWidth < 3)
@@ -212,19 +215,31 @@ namespace MazeShapeEditor
             if (KeyboardInput.IsKeyDown(Keys.J) && PreviousKeyboardInput.IsKeyUp(Keys.J))
             {
                 layoutHeight--;
-                CellsToDraw.Clear();
+                //CellsToDraw.Clear();
+
+                layoutHasBeenUpdated = true;
             }
             if (KeyboardInput.IsKeyDown(Keys.K) && PreviousKeyboardInput.IsKeyUp(Keys.K))
             {
                 layoutHeight++;
-                CellsToDraw.Clear();
+                //CellsToDraw.Clear();
+
+                layoutHasBeenUpdated = true;
             }
 
             if (layoutHeight < 3)
                 layoutHeight = 3;
 
-            //g_data.tilesizeH = layoutWidth;
-            //g_data.tilesizeV = layoutHeight;
+            if (layoutHasBeenUpdated == true)
+            {
+                // upd cell list
+
+                //tmp => changes nothing
+                //Ingrid.updateGrid(layoutWidth, layoutHeight, 600, 400);
+                // ==> when cells sizes change => update list of cell to update !! it still holds old coord/sizes
+
+                layoutHasBeenUpdated = false;
+            }
 
             if (KeyboardInput.IsKeyDown(Keys.S) && PreviousKeyboardInput.IsKeyUp(Keys.S))
             {
@@ -241,11 +256,8 @@ namespace MazeShapeEditor
 
                 System.Diagnostics.Debug.Print("=========== LOAD =============");
 
-                //MazeLayout loadedlayout = 
                 tmpLoadLayout(currentLayoutIndex);
-                //layoutHeight = (Byte)loadedlayout.height;
-                //layoutWidth = (Byte)loadedlayout.width;
-
+                
                 savetext = "Layout " + currentLayoutIndex.ToString() + " loaded\n";
                 st_delay = 3.0f;
             }
@@ -258,8 +270,6 @@ namespace MazeShapeEditor
             {
                 st_delay -= (float)gameTime.ElapsedGameTime.TotalSeconds;
             }
-
-            //System.Diagnostics.Debug.Print(string.Format("std={0}", st_delay));
 
             PreviousMouseInput = MouseInput;
             PreviousKeyboardInput = KeyboardInput;
@@ -361,11 +371,9 @@ namespace MazeShapeEditor
 
         private void update_cell(UInt16[] cell, Byte color)
         {
-            UInt16[] screencel = Ingrid.getCellScreenCoordinates(cell[0], cell[1]);
-            
             GridCell gcell = new GridCell();
-            gcell.x = screencel[0];
-            gcell.y = screencel[1];
+            gcell.x = cell[0];
+            gcell.y = cell[1];
             gcell.value = color;
 
             if (color == 255)
@@ -389,11 +397,22 @@ namespace MazeShapeEditor
             for (index = 0; index < CellsToDraw.Count; index++)
             {
                 cell = CellsToDraw[index];
-                Rectangle rectangle = new Rectangle(cell.x, cell.y, Ingrid.tilesizeH, Ingrid.tilesizeV); //g_data.tilesizeH, g_data.tilesizeV);
-                spriteBatch.Draw(texture, rectangle, cell.color);
 
-                // to use for instant click/button like display (color removed just after click)
-                //CellsToDraw.RemoveAt(index);
+                // if cell in the list outside the layout => discarded
+                if (cell.x >= layoutWidth || cell.y >= layoutHeight)
+                {
+                    CellsToDraw.RemoveAt(index);
+                }
+                else
+                {
+                    UInt16[] screencel = Ingrid.getCellScreenCoordinates(cell.x, cell.y);
+
+                    Rectangle rectangle = new Rectangle(screencel[0], screencel[1], Ingrid.tilesizeH, Ingrid.tilesizeV); //g_data.tilesizeH, g_data.tilesizeV);
+                    spriteBatch.Draw(texture, rectangle, cell.color);
+
+                    // to use for instant click/button like display (color removed just after click)
+                    //CellsToDraw.RemoveAt(index);
+                }
             }
 
             spriteBatch.End();
@@ -407,15 +426,17 @@ namespace MazeShapeEditor
             UInt16 index;
             GridCell cell;
 
-            UInt16[] cellcoord;
+            //UInt16[] cellcoord;
 
             for (index = 0; index < CellsToDraw.Count; index++)
             {
                 cell = CellsToDraw[index];
 
-                cellcoord = Ingrid.getCellGridCoordinates(cell.x, cell.y);
+                //cellcoord = Ingrid.getCellGridCoordinates(cell.x, cell.y);
 
-                mazeLayout[cellcoord[0], cellcoord[1]] = cell.value;
+                // on save: issue below: 2 coords = max int16
+                //mazeLayout[cellcoord[0], cellcoord[1]] = cell.value;
+                mazeLayout[cell.x, cell.y] = cell.value;
             }
 
             return mazeLayout;
@@ -449,55 +470,35 @@ namespace MazeShapeEditor
         }
 
 
-        // in fatc ret val not needed at all, set up layout size vars here directly
         private void tmpLoadLayout(Byte index)
         {
-            //MazeLayout returnValue = new MazeLayout();
-
-            //Byte[,] layout = null; // = new Byte[,]();
-
             if (File.Exists("m" + index.ToString() + ".layout") == true)
             {
                 using (BinaryReader breader = new BinaryReader(File.Open("m" + index.ToString() + ".layout", FileMode.Open)))
                 {
                     string fileformatversion = breader.ReadString();
-                    //UInt16 nbcellsH = (UInt16)breader.ReadInt16();
-                    //UInt16 nbcellsV = (UInt16)breader.ReadInt16();
-
-                    //returnValue.width = (UInt16)breader.ReadInt16();
-                    //returnValue.height = (UInt16)breader.ReadInt16();
-
+                    
                     layoutWidth = (Byte)breader.ReadInt16();
                     layoutHeight = (Byte)breader.ReadInt16();
 
-                    // export outside the layout size !
-                    // ==> ISSUE: getscreencellcoord use gdata sizes, et IN THE BEGINNING ! and never updated !
-                    // g_data.tilesizeH, g_data.tilesizeV are different between two calls 
-                    // => draw_base_grid recalc them !
+                    Ingrid.updateGrid(layoutWidth, layoutHeight, 600, 400);
+                    
                     for (UInt16 x = 0; x < layoutWidth; x++)
                     {
                         for (UInt16 y = 0; y < layoutWidth; y++)
                         {
                             Byte dummy = breader.ReadByte();
-                            //layout[x, y] = breader.ReadByte();
-                            //~here: better, without using layout at all:
-                            // if byte read = 255 = update_cell()
                             if (dummy > 0)
                             {
-                                // set color according to read value
+                                // set color/value according to read value
                                 update_cell(new[] { x, y }, dummy);
                             }
                         }
                     }
 
-                    //not used !
-                    //returnValue.layout = layout;
-
                     //System.Diagnostics.Debug.Print(string.Format("Head=[{0}] ch=[{1}] cv=[{2}]", fileformatversion, nbcellsH, nbcellsV));
                 }
             }
-
-            //return returnValue;
         }
     }
 }

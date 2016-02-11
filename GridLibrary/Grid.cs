@@ -66,6 +66,8 @@ namespace GridLibrary
 
         public void updateGrid(UInt16 nbcellsH, UInt16 nbcellsV, UInt16 width, UInt16 height)
         {
+            System.Diagnostics.Debug.Print(string.Format("upd={0} {1} {2} {3}", nbcellsH, nbcellsV, width, height));
+
             // to update with mazeeditor changes
             tilesizeH = (UInt16)((width - (nbcellsH + 1) * gridsizeH) / nbcellsH);
             tilesizeV = (UInt16)((height - (nbcellsV + 1) * gridsizeV) / nbcellsV);
@@ -73,6 +75,8 @@ namespace GridLibrary
             // if sizes > screen/window get the closest available
             actualWidth = (UInt16)((nbcellsH * tilesizeH) + (nbcellsH + 1) * gridsizeH);
             actualHeight = (UInt16)((nbcellsV * tilesizeV) + (nbcellsV + 1) * gridsizeV);
+
+            System.Diagnostics.Debug.Print(string.Format("grid upd={0} {1} {2} {3}", tilesizeH, tilesizeV, actualWidth, actualHeight));
         }
 
 
@@ -127,7 +131,7 @@ namespace GridLibrary
             cell[2] = (UInt16)(tilesizeH);
             cell[3] = (UInt16)(tilesizeV);
 
-            System.Diagnostics.Debug.Print(string.Format("c={0} {1} {2} {3}", cell[0], cell[1], cell[2], cell[3]));
+            //System.Diagnostics.Debug.Print(string.Format("grid/c={0} {1} {2} {3}", cell[0], cell[1], cell[2], cell[3]));
             return cell;
         }
 
