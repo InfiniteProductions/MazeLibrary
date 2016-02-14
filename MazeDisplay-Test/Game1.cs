@@ -29,6 +29,8 @@ namespace MazeDisplay_Test
         UInt16 backgroundsW, backgroundsH;
         byte holesCount, holesMaxRadius;
 
+        Byte layoutIndex;
+
         String[] methodNames = new string[] { "Newest", "Oldest", "Random", "Cyclic", "Kit", "Collapse" };
 
         public Game1()
@@ -56,6 +58,8 @@ namespace MazeDisplay_Test
             backgroundsH = 400;
             holesCount = 0;
             holesMaxRadius = 0;
+
+            layoutIndex = 0;
 
             aMazIng = new Maze(mazeW, mazeH, 0, 0, PickMethod.Cyclic);
             aMazIng.GenerateTWMaze_GrowingTree(picking);
@@ -162,6 +166,24 @@ namespace MazeDisplay_Test
                 mazeSizeUpdated = true;
             }
 
+            if (KeyboardInput.IsKeyDown(Keys.U) && PreviousKeyboardInput.IsKeyUp(Keys.U))
+            {
+                layoutIndex--;
+            }
+            if (KeyboardInput.IsKeyDown(Keys.I) && PreviousKeyboardInput.IsKeyUp(Keys.I))
+            {
+                layoutIndex++;
+            }
+
+            layoutIndex = (Byte)MathHelper.Clamp(layoutIndex, 0, 9);
+
+            if (KeyboardInput.IsKeyDown(Keys.L) && PreviousKeyboardInput.IsKeyUp(Keys.L))
+            {
+                //load layout
+                mazeSizeUpdated = true;
+            }
+
+
             if (mazeSizeUpdated == true)
             {
                 aMazIng.UpdateSize(mazeW, mazeH, holesCount, holesMaxRadius);
@@ -186,11 +208,12 @@ namespace MazeDisplay_Test
             dmaze.DrawMaze(aMazIng.maze);
 
             String text = string.Format("Controls:\nR - reset\nP - change picking method\n\n  Pickmethod [{0}]\n\n" +
+                "\nU/I - decrease/increase layout index\nL - load layout number [{1}]\n" +
                 "\nNumpad keys:\n7 - decrease cells W\n9 - increase cells W" +
                 "\n2 - decrease cells H\n8 - increase cells H" +
                 "\n6 - increase holes count\n4 - decrease holes count" +
                 "\n3 - increase holes max radius\n1 - decrease holes max radius"
-                , methodNames[currMethod]);
+                , methodNames[currMethod], layoutIndex);
             // increase/dec number of "holes"
             // inc/dec max radius of holes
             text += string.Format("\n\n  sizeW={0} sizeH={1}", mazeW, mazeH);

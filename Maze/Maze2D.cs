@@ -9,6 +9,8 @@ using Microsoft.Xna.Framework.Input;
 using GridLibrary;
 using MazeLib;
 
+// add layout loading
+
 namespace MazeLib
 {
     public class Maze2D

@@ -22,19 +22,19 @@ using MazeLib;
 
 namespace MazeShapeEditor
 {
-    public struct GridCell
-    {
-        public UInt16 x, y;
-        public Color color;
-        public Byte value;
-    }
+    //public struct GridCell
+    //{
+    //    public UInt16 x, y;
+    //    public Color color;
+    //    public Byte value;
+    //}
 
     // no longer needed/used
-    public struct MazeLayout
-    {
-        public UInt16 width, height;
-        public Byte[,] layout;
-    }
+    //public struct MazeLayout
+    //{
+    //    public UInt16 width, height;
+    //    public Byte[,] layout;
+    //}
 
 
     public class MazeEditor : Game
@@ -57,13 +57,15 @@ namespace MazeShapeEditor
         GridData g_data;
         Texture2D texture;
 
-        List<GridCell> CellsToDraw;
+        Layout mazeLayout;
+
+        //List<GridCell> CellsToDraw;
         Byte currentColor;
 
         // number of cells horizontally & vertically
         Byte layoutWidth, layoutHeight;
 
-        Byte[,] layout;
+        //Byte[,] layout;
         
         // file index for I/O (from 0 to 9)
         Byte currentLayoutIndex;
@@ -94,7 +96,9 @@ namespace MazeShapeEditor
             st_delay = 0f;
             currentColor = 1;
 
-            CellsToDraw = new List<GridCell>();
+            mazeLayout = new Layout(layoutWidth, layoutHeight);
+
+            //CellsToDraw = new List<GridCell>();
         }
 
 
@@ -108,8 +112,7 @@ namespace MazeShapeEditor
 
             IsMouseVisible = true;
 
-            layout = new Byte[layoutWidth, layoutHeight];
-
+            //layout = new Byte[layoutWidth, layoutHeight];
 
             base.Initialize();
         }
@@ -152,14 +155,16 @@ namespace MazeShapeEditor
                 UInt16[] cellA = Ingrid.getCellGridCoordinates((UInt16)MouseInput.X, (UInt16)MouseInput.Y);
 
                 // use only value = array index
-                update_cell(cellA, currentColor);
+                //update_cell(cellA, currentColor);
+                mazeLayout.updateCell(cellA, currentColor);
             }
 
             if (MouseInput.RightButton == ButtonState.Pressed && PreviousMouseInput.RightButton == ButtonState.Released)
             {
                 UInt16[] cellA = Ingrid.getCellGridCoordinates((UInt16)MouseInput.X, (UInt16)MouseInput.Y);
 
-                update_cell(cellA, 0);
+                //update_cell(cellA, 0);
+                mazeLayout.updateCell(cellA, 0);
             }
 
             for (Keys key = Keys.NumPad0; key <= Keys.NumPad9; key++)
@@ -184,7 +189,8 @@ namespace MazeShapeEditor
 
             if (KeyboardInput.IsKeyDown(Keys.C) && PreviousKeyboardInput.IsKeyUp(Keys.C))
             {
-                CellsToDraw.Clear();
+                //CellsToDraw.Clear();
+                mazeLayout.ClearCells();
             }
 
             if (KeyboardInput.IsKeyDown(Keys.A) && PreviousKeyboardInput.IsKeyUp(Keys.A))
@@ -234,6 +240,8 @@ namespace MazeShapeEditor
             {
                 // upd cell list
 
+                mazeLayout.Update(layoutWidth, layoutHeight);
+
                 //tmp => changes nothing
                 //Ingrid.updateGrid(layoutWidth, layoutHeight, 600, 400);
                 // ==> when cells sizes change => update list of cell to update !! it still holds old coord/sizes
@@ -243,21 +251,29 @@ namespace MazeShapeEditor
 
             if (KeyboardInput.IsKeyDown(Keys.S) && PreviousKeyboardInput.IsKeyUp(Keys.S))
             {
-                tmpSaveLayout(layoutWidth, layoutHeight, currentLayoutIndex);
+                //tmpSaveLayout(layoutWidth, layoutHeight, currentLayoutIndex);
+                mazeLayout.SaveLayout(currentLayoutIndex);
 
                 savetext = "Layout " + currentLayoutIndex.ToString() + " saved\n";
                 st_delay = 3.0f;
             }
 
-            // 1st load: coord messedup, 2nd load immediately after: ok !
             if (KeyboardInput.IsKeyDown(Keys.L) && PreviousKeyboardInput.IsKeyUp(Keys.L))
             {
-                CellsToDraw.Clear();
+                //CellsToDraw.Clear();
+                mazeLayout.ClearCells();
 
                 System.Diagnostics.Debug.Print("=========== LOAD =============");
 
-                tmpLoadLayout(currentLayoutIndex);
+                mazeLayout.LoadLayout(currentLayoutIndex);
                 
+                // two upd, not very good
+                Ingrid.updateGrid(mazeLayout.width, mazeLayout.height, 600, 400);
+                
+                layoutWidth = (Byte)mazeLayout.width;
+                layoutHeight = (Byte)mazeLayout.height;
+
+
                 savetext = "Layout " + currentLayoutIndex.ToString() + " loaded\n";
                 st_delay = 3.0f;
             }
@@ -286,7 +302,7 @@ namespace MazeShapeEditor
 
             DrawUpdatedCells();
 
-            String text = string.Format("Type:{0}\nNumpad0-9 to change type\n\n", currentColor);
+            String text = string.Format("CellType:{0}\nNumpad0-9 to change type\n\n", currentColor);
             text += string.Format("\nwidht: {0}  height: {1}\n U/I decrease/increase height\n J/K decrease/increase height\n\n", layoutWidth, layoutHeight);
             text += string.Format("\nC: clear layout\nS: save layout\nLayout (P-, N+): {0}\n\n{1}", currentLayoutIndex, savetext);
 
@@ -369,7 +385,7 @@ namespace MazeShapeEditor
         }
 
 
-        private void update_cell(UInt16[] cell, Byte color)
+        private void _unused_update_cell(UInt16[] cell, Byte color)
         {
             GridCell gcell = new GridCell();
             gcell.x = cell[0];
@@ -381,9 +397,9 @@ namespace MazeShapeEditor
 
             gcell.color = defaultColors[color];
 
-            System.Diagnostics.Debug.Print(string.Format("cell x={0}->{2} y={1}->{3}", cell[0], cell[1], gcell.x, gcell.y));
+            //System.Diagnostics.Debug.Print(string.Format("cell x={0}->{2} y={1}->{3}", cell[0], cell[1], gcell.x, gcell.y));
 
-            CellsToDraw.Add(gcell);
+            //CellsToDraw.Add(gcell);
         }
 
 
@@ -394,14 +410,17 @@ namespace MazeShapeEditor
             UInt16 index;
             GridCell cell;
 
-            for (index = 0; index < CellsToDraw.Count; index++)
+            // mazeLayout.getCellsCount()
+            for (index = 0; index < mazeLayout.CellsToDraw.Count; index++)
             {
-                cell = CellsToDraw[index];
+                cell = mazeLayout.getCellAtIndex(index);
+                //cell = mazeLayout.CellsToDraw[index];
 
                 // if cell in the list outside the layout => discarded
                 if (cell.x >= layoutWidth || cell.y >= layoutHeight)
                 {
-                    CellsToDraw.RemoveAt(index);
+                    mazeLayout.removeCellAtIndex(index);
+                    //mazeLayout.CellsToDraw.RemoveAt(index);
                 }
                 else
                 {
@@ -419,86 +438,90 @@ namespace MazeShapeEditor
         }
 
 
-        private Byte[,] GenerateMazeLayout(UInt16 nbcellsH, UInt16 nbcellsV)
-        {
-            Byte[,] mazeLayout = new Byte[nbcellsH, nbcellsV];
+        //private Byte[,] GenerateMazeLayout(UInt16 nbcellsH, UInt16 nbcellsV)
+        //{
+        //    Byte[,] mazeLayout = new Byte[nbcellsH, nbcellsV];
 
-            UInt16 index;
-            GridCell cell;
+        //    UInt16 index;
+        //    GridCell cell;
 
-            //UInt16[] cellcoord;
+        //    //UInt16[] cellcoord;
 
-            for (index = 0; index < CellsToDraw.Count; index++)
-            {
-                cell = CellsToDraw[index];
+        //    for (index = 0; index < CellsToDraw.Count; index++)
+        //    {
+        //        cell = CellsToDraw[index];
 
-                //cellcoord = Ingrid.getCellGridCoordinates(cell.x, cell.y);
+        //        //cellcoord = Ingrid.getCellGridCoordinates(cell.x, cell.y);
 
-                // on save: issue below: 2 coords = max int16
-                //mazeLayout[cellcoord[0], cellcoord[1]] = cell.value;
-                mazeLayout[cell.x, cell.y] = cell.value;
-            }
+        //        // on save: issue below: 2 coords = max int16
+        //        //mazeLayout[cellcoord[0], cellcoord[1]] = cell.value;
+        //        mazeLayout[cell.x, cell.y] = cell.value;
+        //    }
 
-            return mazeLayout;
-        }
+        //    return mazeLayout;
+        //}
 
 
         // ~separate library for IO
-        private void tmpSaveLayout(UInt16 nbcellsH, UInt16 nbcellsV, Byte index)
-        {
-            Byte[,] layout = GenerateMazeLayout(nbcellsH, nbcellsV);
+        // => layout as input param
+        // ~layout class with load/save/init ?
+        //private void tmpSaveLayout(UInt16 nbcellsH, UInt16 nbcellsV, Byte index)
+        //{
+        //    Byte[,] layout = GenerateMazeLayout(nbcellsH, nbcellsV);
 
-            using (BinaryWriter bwriter = new BinaryWriter(File.Open("m" + index.ToString() + ".layout", FileMode.Create)))
-            {
-                bwriter.Write("MazeLayout V1.0-" + index.ToString());
-                bwriter.Write(nbcellsH);
-                bwriter.Write(nbcellsV);
+        //    using (BinaryWriter bwriter = new BinaryWriter(File.Open("m" + index.ToString() + ".layout", FileMode.Create)))
+        //    {
+        //        bwriter.Write("MazeLayout V1.0-" + index.ToString());
+        //        bwriter.Write(nbcellsH);
+        //        bwriter.Write(nbcellsV);
 
-                for (UInt16 x = 0; x < nbcellsH; x++)
-                {
-                    for (UInt16 y = 0; y < nbcellsV; y++)
-                    {
-                        bwriter.Write(layout[x,y]);
+        //        for (UInt16 x = 0; x < nbcellsH; x++)
+        //        {
+        //            for (UInt16 y = 0; y < nbcellsV; y++)
+        //            {
+        //                bwriter.Write(layout[x,y]);
 
-                        //if (layout[x, y] != 0)
-                        //    System.Diagnostics.Debug.Print(string.Format("L[{0},{1}]={2}", x, y, layout[x, y]));
-                    }
-                }
+        //                //if (layout[x, y] != 0)
+        //                //    System.Diagnostics.Debug.Print(string.Format("L[{0},{1}]={2}", x, y, layout[x, y]));
+        //            }
+        //        }
 
-                bwriter.Write("L" + index.ToString() + "end");
-            }
-        }
+        //        bwriter.Write("L" + index.ToString() + "end");
+        //    }
+        //}
 
 
-        private void tmpLoadLayout(Byte index)
-        {
-            if (File.Exists("m" + index.ToString() + ".layout") == true)
-            {
-                using (BinaryReader breader = new BinaryReader(File.Open("m" + index.ToString() + ".layout", FileMode.Open)))
-                {
-                    string fileformatversion = breader.ReadString();
+        // sep => layout/cell list as output param + update grid outside
+        //private void tmpLoadLayout(Byte index)
+        //{
+        //    if (File.Exists("m" + index.ToString() + ".layout") == true)
+        //    {
+        //        using (BinaryReader breader = new BinaryReader(File.Open("m" + index.ToString() + ".layout", FileMode.Open)))
+        //        {
+        //            string fileformatversion = breader.ReadString();
                     
-                    layoutWidth = (Byte)breader.ReadInt16();
-                    layoutHeight = (Byte)breader.ReadInt16();
+        //            layoutWidth = (Byte)breader.ReadInt16();
+        //            layoutHeight = (Byte)breader.ReadInt16();
 
-                    Ingrid.updateGrid(layoutWidth, layoutHeight, 600, 400);
+        //            Ingrid.updateGrid(layoutWidth, layoutHeight, 600, 400);
                     
-                    for (UInt16 x = 0; x < layoutWidth; x++)
-                    {
-                        for (UInt16 y = 0; y < layoutWidth; y++)
-                        {
-                            Byte dummy = breader.ReadByte();
-                            if (dummy > 0)
-                            {
-                                // set color/value according to read value
-                                update_cell(new[] { x, y }, dummy);
-                            }
-                        }
-                    }
+        //            for (UInt16 x = 0; x < layoutWidth; x++)
+        //            {
+        //                for (UInt16 y = 0; y < layoutHeight; y++)
+        //                {
+        //                    Byte dummy = breader.ReadByte();
+        //                    if (dummy > 0)
+        //                    {
+        //                        // set color/value according to read value
+        //                        //update_cell(new[] { x, y }, dummy);
+        //                        //mazeLayout.updateCell(new[] { x, y }, dummy);
+        //                    }
+        //                }
+        //            }
 
-                    //System.Diagnostics.Debug.Print(string.Format("Head=[{0}] ch=[{1}] cv=[{2}]", fileformatversion, nbcellsH, nbcellsV));
-                }
-            }
-        }
+        //            //System.Diagnostics.Debug.Print(string.Format("Head=[{0}] ch=[{1}] cv=[{2}]", fileformatversion, nbcellsH, nbcellsV));
+        //        }
+        //    }
+        //}
     }
 }

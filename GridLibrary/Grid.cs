@@ -10,6 +10,7 @@ namespace GridLibrary
     {
         public UInt16 x, y;
         public Color color;
+        public Byte value;
     }
 
     // convenient structure to fill properties with constructor

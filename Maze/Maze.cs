@@ -191,6 +191,8 @@ namespace MazeLib
         }
 
 
+        // layout here
+        // "holes" : layout.addholes(number, maxradius)
         public Byte[,] BuildBaseMaze(UInt16 width, UInt16 length, Byte holes = 0, Byte radius = 0)
         {
             Byte[,] maze = new Byte[width, length];
