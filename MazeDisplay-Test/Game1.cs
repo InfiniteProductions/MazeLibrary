@@ -18,9 +18,12 @@ namespace MazeDisplay_Test
         private KeyboardState PreviousKeyboardInput;
 
         Grid Ingrid;
-        GridData gdata;
-        Maze2D dmaze;
         Maze aMazIng;
+
+        Maze2D dmaze;
+        Layout mlayout;
+
+        GridData gdata;
 
         PickMethod picking;
         PickMethod[] methodArray;

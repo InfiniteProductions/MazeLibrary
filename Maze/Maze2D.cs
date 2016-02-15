@@ -101,6 +101,7 @@ namespace MazeLib
                 for (UInt16 x = 0; x < mazeToDraw.GetLength(0); x++)
                 {
                     // here: if cell = 255 => fill cell with a gray color
+                    // with layout ==> new type to handle !
                     if (mazeToDraw[x, y] == 255)
                     {
                         //Console.WriteLine(string.Format("[{0},{1}] = block", x,y));
@@ -110,8 +111,6 @@ namespace MazeLib
                     {
                         foreach (Direction way in Enum.GetValues(typeof(Direction)))
                         {
-                            // x-y swapped no change
-                            //drawAWall(y, x, (Direction)mazeToDraw[y,x]);
                             drawAWall(x, y, (Direction)mazeToDraw[x, y]);
                         }
                     }

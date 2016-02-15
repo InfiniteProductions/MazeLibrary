@@ -187,6 +187,12 @@ namespace MazeShapeEditor
 
             currentLayoutIndex = (Byte)MathHelper.Clamp(currentLayoutIndex, 0, 9);
 
+
+            if (KeyboardInput.IsKeyDown(Keys.F1) && PreviousKeyboardInput.IsKeyUp(Keys.F1))
+            {
+                mazeLayout.CreatePattern(0, currentColor);
+            }
+
             if (KeyboardInput.IsKeyDown(Keys.C) && PreviousKeyboardInput.IsKeyUp(Keys.C))
             {
                 //CellsToDraw.Clear();

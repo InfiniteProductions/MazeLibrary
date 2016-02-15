@@ -9,8 +9,11 @@ using GridLibrary;
 
 namespace MazeLib
 {
+    public enum LayoutPattern : byte { Default = 0, Solitaire = 0, Diamond = 1, Circle = 2 };
+
     public class Layout
     {
+        // ~ 0 = transparent => background color is free
         public Color[] defaultColors = { Color.White, Color.LightSeaGreen, Color.OrangeRed, Color.DeepSkyBlue, Color.Yellow, Color.Black, Color.MediumTurquoise, Color.Red, Color.Red, Color.Red };
         //default color: empty cell, wall, start, exit, ...
         
@@ -150,6 +153,44 @@ namespace MazeLib
             //System.Diagnostics.Debug.Print(string.Format("cell x={0}->{2} y={1}->{3}", cell[0], cell[1], gcell.x, gcell.y));
 
             CellsToDraw.Add(gcell);
+        }
+
+
+        // 0 = cross, 1 = diamond, 2 = circle
+        public void CreatePattern(Byte pattern, Byte colour)
+        {
+            if (pattern == (Byte)LayoutPattern.Solitaire)
+            {
+                for (UInt16 x = 0; x < width; x++)
+                {
+                    for (UInt16 y = 0; y < height; y++)
+                    {
+                        if ((x < width / 3 && y < height / 3) || (x > 2 * width / 3 && y < height / 3) || (x < width / 3 && y > 2 * height / 3) || (x > 2 * width / 3 && y > 2 * height / 3))
+                        {
+                            updateCell(new[] { x, y }, colour);
+                        }
+                    }
+                }
+            }
+            else if (pattern == (Byte)LayoutPattern.Diamond)
+            {
+                UInt16 centreX = (UInt16)(width / 2);
+                UInt16 centreY = (UInt16)(height / 2);
+
+                for (UInt16 x = 0; x < width; x++)
+                {
+                    for (UInt16 y = 0; y < height; y++)
+                    {
+                        if (false)
+                        {
+                            updateCell(new[] { x, y }, 255);
+                        }
+                    }
+                }
+            }
+            else if (pattern == (Byte)LayoutPattern.Circle)
+            {
+            }
         }
     }
 }
