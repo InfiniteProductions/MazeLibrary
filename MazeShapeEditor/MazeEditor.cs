@@ -16,7 +16,6 @@ using MazeLib;
 // 0 empty space, 1 = wall, 2= A, 3=B, ...
 
 // autolayout/template:
-// cross: 1/3 in the middle usable, "arms" = width/height=1/3
 // circle = need to know the cell located inside the perimeter
 // ~ lozange/diamond = middlewidth to/from middleheight
 
@@ -29,14 +28,7 @@ namespace MazeShapeEditor
     //    public Byte value;
     //}
 
-    // no longer needed/used
-    //public struct MazeLayout
-    //{
-    //    public UInt16 width, height;
-    //    public Byte[,] layout;
-    //}
-
-
+    
     public class MazeEditor : Game
     {
         public Color[] defaultColors = { Color.White, Color.LightSeaGreen, Color.OrangeRed, Color.DeepSkyBlue, Color.Yellow, Color.Black, Color.MediumTurquoise, Color.Red, Color.Red, Color.Red };
@@ -65,8 +57,6 @@ namespace MazeShapeEditor
         // number of cells horizontally & vertically
         Byte layoutWidth, layoutHeight;
 
-        //Byte[,] layout;
-        
         // file index for I/O (from 0 to 9)
         Byte currentLayoutIndex;
 
@@ -84,8 +74,8 @@ namespace MazeShapeEditor
             //needed ?
             g_data.offsetx = 100;
             g_data.offsety = 80;
-            g_data.gridsizeH = 1;
-            g_data.gridsizeV = 1;
+            g_data.gridthicknessH = 1;
+            g_data.gridthicknessV = 1;
             g_data.tilesizeH = 10;
             g_data.tilesizeV = 10;
 
@@ -320,6 +310,7 @@ namespace MazeShapeEditor
         }
 
 
+        //part of gridlib now, to remove
 
         // Draw the background/board and base grid
         // some code need to be modified to fit your needs, like blendstate to draw grid over a beackground picture
@@ -328,12 +319,12 @@ namespace MazeShapeEditor
             UInt16 x, y;
 
             //need to be in a reset/update grid method
-            g_data.tilesizeH = (UInt16)((width - (nbcellsH + 1) * g_data.gridsizeH) / nbcellsH);
-            g_data.tilesizeV = (UInt16)((height - (nbcellsV + 1) * g_data.gridsizeV) / nbcellsV);
+            g_data.tilesizeH = (UInt16)((width - (nbcellsH + 1) * g_data.gridthicknessH) / nbcellsH);
+            g_data.tilesizeV = (UInt16)((height - (nbcellsV + 1) * g_data.gridthicknessV) / nbcellsV);
 
             // if sizes > screen/window get the closest available
-            g_data.actualWidth = (UInt16)((nbcellsH * g_data.tilesizeH) + (nbcellsH + 1) * g_data.gridsizeH);
-            g_data.actualHeight = (UInt16)((nbcellsV * g_data.tilesizeV) + (nbcellsV + 1) * g_data.gridsizeV);
+            g_data.actualWidth = (UInt16)((nbcellsH * g_data.tilesizeH) + (nbcellsH + 1) * g_data.gridthicknessH);
+            g_data.actualHeight = (UInt16)((nbcellsV * g_data.tilesizeV) + (nbcellsV + 1) * g_data.gridthicknessV);
 
             Rectangle background = new Rectangle(g_data.offsetx, g_data.offsety, g_data.actualWidth, g_data.actualHeight);
 
@@ -344,13 +335,13 @@ namespace MazeShapeEditor
 
             for (x = 0; x <= nbcellsH; x++)
             {
-                Rectangle rectangle = new Rectangle(g_data.offsetx + x * (g_data.tilesizeH + g_data.gridsizeH), g_data.offsety, g_data.gridsizeH, g_data.actualHeight);
+                Rectangle rectangle = new Rectangle(g_data.offsetx + x * (g_data.tilesizeH + g_data.gridthicknessH), g_data.offsety, g_data.gridthicknessH, g_data.actualHeight);
                 spriteBatch.Draw(texture, rectangle, Color.LightGray);
             }
 
             for (y = 0; y <= nbcellsV; y++)
             {
-                Rectangle rectangle = new Rectangle(g_data.offsetx, g_data.offsety + y * (g_data.tilesizeV + g_data.gridsizeV), g_data.actualWidth, g_data.gridsizeV);
+                Rectangle rectangle = new Rectangle(g_data.offsetx, g_data.offsety + y * (g_data.tilesizeV + g_data.gridthicknessV), g_data.actualWidth, g_data.gridthicknessV);
                 spriteBatch.Draw(texture, rectangle, Color.LightGray);
             }
 
@@ -359,7 +350,7 @@ namespace MazeShapeEditor
 
 
         // There is still one little issue in this code if gridsize > 1, maybe from the two +1 below
-        private UInt16[] getCellScreenCoordinates(UInt16 x, UInt16 y)
+        private UInt16[] _unused_getCellScreenCoordinates(UInt16 x, UInt16 y)
         {
             //System.Diagnostics.Debug.Print(string.Format("lw={0} lh={1}",layoutWidth, layoutHeight));
             System.Diagnostics.Debug.Print(string.Format("gth={0} gtv={1}", g_data.tilesizeH, g_data.tilesizeV));
@@ -370,8 +361,8 @@ namespace MazeShapeEditor
             // this allow to draw a rectangle right away without any further calculations
 
             // +1 here, without grid size below = cell only, no border
-            cell[0] = (UInt16)(g_data.offsetx + x * (g_data.tilesizeH + g_data.gridsizeH) + 1);
-            cell[1] = (UInt16)(g_data.offsety + y * (g_data.tilesizeV + g_data.gridsizeV) + 1);
+            cell[0] = (UInt16)(g_data.offsetx + x * (g_data.tilesizeH + g_data.gridthicknessH) + 1);
+            cell[1] = (UInt16)(g_data.offsety + y * (g_data.tilesizeV + g_data.gridthicknessV) + 1);
 
             cell[2] = (UInt16)(g_data.tilesizeH);
             cell[3] = (UInt16)(g_data.tilesizeV);
@@ -380,12 +371,12 @@ namespace MazeShapeEditor
         }
 
 
-        private UInt16[] getCellGridCoordinates(UInt16 sx, UInt16 sy)
+        private UInt16[] _unused_getCellGridCoordinates(UInt16 sx, UInt16 sy)
         {
             UInt16[] gridpos = { 0, 0 };
 
-            gridpos[0] = (UInt16)((sx - g_data.offsetx) / (g_data.tilesizeH + g_data.gridsizeH));
-            gridpos[1] = (UInt16)((sy - g_data.offsety) / (g_data.tilesizeV + g_data.gridsizeV));
+            gridpos[0] = (UInt16)((sx - g_data.offsetx) / (g_data.tilesizeH + g_data.gridthicknessH));
+            gridpos[1] = (UInt16)((sy - g_data.offsety) / (g_data.tilesizeV + g_data.gridthicknessV));
 
             return gridpos;
         }

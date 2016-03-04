@@ -45,50 +45,9 @@
   <ItemGroup>
     <Reference Include="MonoGame.Framework, Version=3.4.0.456, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>M:\c#\MonoGame\MonoGame\MonoGame.Framework\bin\Windows\AnyCPU\Debug\MonoGame.Framework.dll</HintPath>
-    </Reference>
-    <Reference Include="MonoGame.Framework.Net, Version=3.4.0.456, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>M:\c#\MonoGame\MonoGame\MonoGame.Framework\bin\Windows\AnyCPU\Debug\MonoGame.Framework.Net.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX, Version=2.4.1.0, Culture=neutral, PublicKeyToken=1ad86a6536f2ba74, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>M:\c#\MonoGame\MonoGame\MonoGame.Framework\bin\Windows\AnyCPU\Debug\SharpDX.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.Direct2D1, Version=3.0.0.0, Culture=neutral, PublicKeyToken=b4dcf0f35e5521f1, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>M:\c#\MonoGame\MonoGame\MonoGame.Framework\bin\Windows\AnyCPU\Debug\SharpDX.Direct2D1.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.Direct3D11, Version=2.4.1.0, Culture=neutral, PublicKeyToken=1ad86a6536f2ba74, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>M:\c#\MonoGame\MonoGame\MonoGame.Framework\bin\Windows\AnyCPU\Debug\SharpDX.Direct3D11.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.Direct3D9, Version=2.5.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>M:\c#\MonoGame\MonoGame\MonoGame.Framework\bin\Windows\AnyCPU\Debug\SharpDX.Direct3D9.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.DXGI, Version=2.4.1.0, Culture=neutral, PublicKeyToken=1ad86a6536f2ba74, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>M:\c#\MonoGame\MonoGame\MonoGame.Framework\bin\Windows\AnyCPU\Debug\SharpDX.DXGI.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.MediaFoundation, Version=2.5.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>M:\c#\MonoGame\MonoGame\MonoGame.Framework\bin\Windows\AnyCPU\Debug\SharpDX.MediaFoundation.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.RawInput, Version=2.5.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>M:\c#\MonoGame\MonoGame\MonoGame.Framework\bin\Windows\AnyCPU\Debug\SharpDX.RawInput.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.XAudio2, Version=2.4.1.0, Culture=neutral, PublicKeyToken=1ad86a6536f2ba74, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>M:\c#\MonoGame\MonoGame\MonoGame.Framework\bin\Windows\AnyCPU\Debug\SharpDX.XAudio2.dll</HintPath>
-    </Reference>
-    <Reference Include="SharpDX.XInput, Version=2.4.1.0, Culture=neutral, PublicKeyToken=1ad86a6536f2ba74, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>M:\c#\MonoGame\MonoGame\MonoGame.Framework\bin\Windows\AnyCPU\Debug\SharpDX.XInput.dll</HintPath>
+      <HintPath>H:\C-ProgramFilesx86\MonoGame\v3.0\Assemblies\Windows\MonoGame.Framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Icon.ico" />

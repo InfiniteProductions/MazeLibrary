@@ -6,6 +6,8 @@ using GridLibrary;
 using MazeLib;
 using System;
 
+//~add preferences file, for now only layout storage directory
+
 namespace MazeDisplay_Test
 {
     public class Game1 : Game
@@ -36,11 +38,13 @@ namespace MazeDisplay_Test
 
         String[] methodNames = new string[] { "Newest", "Oldest", "Random", "Cyclic", "Kit", "Collapse" };
 
+
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
         }
+
 
         protected override void Initialize()
         {
@@ -64,13 +68,16 @@ namespace MazeDisplay_Test
 
             layoutIndex = 0;
 
-            aMazIng = new Maze(mazeW, mazeH, 0, 0, PickMethod.Cyclic);
+            mlayout = new Layout(mazeW, mazeH);
+
+            aMazIng = new Maze(mazeW, mazeH, mlayout, 0, 0, PickMethod.Cyclic);
             aMazIng.GenerateTWMaze_GrowingTree(picking);
 
-            aMazIng.dumpMaze();
+            //aMazIng.dumpMaze();
 
             base.Initialize();
         }
+
 
         protected override void LoadContent()
         {
@@ -80,8 +87,8 @@ namespace MazeDisplay_Test
 
             gdata.offsetx = 100;
             gdata.offsety = 80;
-            gdata.gridsizeH = 1;
-            gdata.gridsizeV = 1;
+            gdata.gridthicknessH = 1;
+            gdata.gridthicknessV = 1;
             gdata.tilesizeH = 10;
             gdata.tilesizeV = 10;
 
@@ -91,9 +98,12 @@ namespace MazeDisplay_Test
 
         }
 
+
         protected override void UnloadContent()
         {
+            GC.Collect(0);
         }
+
 
         protected override void Update(GameTime gameTime)
         {
@@ -105,6 +115,7 @@ namespace MazeDisplay_Test
                 Exit();
             }
 
+            // Reset: layout lost
             if (KeyboardInput.IsKeyDown(Keys.R) && PreviousKeyboardInput.IsKeyUp(Keys.R))
             {
                 aMazIng.Reset();
@@ -183,16 +194,21 @@ namespace MazeDisplay_Test
             if (KeyboardInput.IsKeyDown(Keys.L) && PreviousKeyboardInput.IsKeyUp(Keys.L))
             {
                 //load layout
+                mlayout.LoadLayout(layoutIndex);
+
+                // ISSUE: maze not adjuster to layout size !
+                mlayout.GenerateMazeLayout();
+                
                 mazeSizeUpdated = true;
             }
 
 
             if (mazeSizeUpdated == true)
             {
-                aMazIng.UpdateSize(mazeW, mazeH, holesCount, holesMaxRadius);
+                aMazIng.UpdateSize(mazeW, mazeH, mlayout, holesCount, holesMaxRadius);
 
                 // need to update total grid size too (+x cells = +n pixels)
-                aMazIng.Reset();
+                //unneeded aMazIng.Reset();
                 aMazIng.GenerateTWMaze_GrowingTree(methodArray[currMethod]);
             }
 
@@ -200,6 +216,7 @@ namespace MazeDisplay_Test
 
             base.Update(gameTime);
         }
+
 
         protected override void Draw(GameTime gameTime)
         {

@@ -27,6 +27,8 @@ namespace MazeLib
         public Byte[] spawnpoint { get; private set; }
         public Byte[] exitpoint { get; private set; }
 
+        public Layout layout { get; private set; }
+
         public Random random = new Random((int)DateTime.Now.Ticks & (0x0000FFFF));
 
         public PickMethod pickMethod { get; private set; }
@@ -35,29 +37,34 @@ namespace MazeLib
         private bool KitCycle = true;   // true = increase, false = decrease
 
         // create a random maze, with a starting position eventually
-        public Maze(UInt16 width, UInt16 length, UInt16 startx = 0, UInt16 starty = 0, PickMethod pimet = PickMethod.Newest, Byte holes = 0, byte maxradius = 0)
+        public Maze(UInt16 width, UInt16 length, Layout layout = null, UInt16 startx = 0, UInt16 starty = 0, PickMethod pimet = PickMethod.Newest, Byte holes = 0, byte maxradius = 0)
         {
-            Debug.Print(string.Format("W={0} L={1}", width, length));
+            Debug.Print(string.Format("C: W={0} L={1}", width, length));
 
             this.width = width;
             this.length = length;
+
+            this.layout = layout;
 
             this.holes = holes;
             this.holesMaxRadius = maxradius;
 
             pickMethod = pimet;
 
-            maze = BuildBaseMaze(width, length, this.holes, this.holesMaxRadius);
+            // layout here 
+           maze = BuildBaseMaze(this.width, this.length, this.layout, this.holes, this.holesMaxRadius);
+           
         }
 
 
         public void Reset()
         {
-            maze = BuildBaseMaze(width, length, this.holes, this.holesMaxRadius);
+            // layout here too
+            maze = BuildBaseMaze(width, length, layout, this.holes, this.holesMaxRadius);
         }
 
 
-        public void UpdateSize(UInt16 width, UInt16 length, byte holes = 0, byte maxradius = 0)
+        public void UpdateSize(UInt16 width, UInt16 length, Layout layout = null, byte holes = 0, byte maxradius = 0)
         {
             if (width <= 0)
                 width = this.width;
@@ -67,13 +74,87 @@ namespace MazeLib
 
             this.width = width;
             this.length = length;
+            this.layout = layout;
             this.holes = holes;
             this.holesMaxRadius = maxradius;
 
             maze = null;
             GC.Collect(0);
 
-            maze = BuildBaseMaze(width, length, this.holes, this.holesMaxRadius);
+            maze = BuildBaseMaze(this.width, this.length, this.layout, this.holes, this.holesMaxRadius);
+        }
+
+
+        // layout here = as now part of the class => remove parameter or update class property
+        // "holes" : layout.addholes(number, maxradius)
+        public Byte[,] BuildBaseMaze(UInt16 width, UInt16 length, Layout _layout = null, Byte holes = 0, Byte radius = 0)
+        {
+            Byte[,] maze = new Byte[width, length];
+            sbyte xr = -127, yr = -127;
+
+            // Example of solid wall, allowing to shape the maze and make it less looks like a mere "boring square"
+            //maze[2, 0] = maze[3, 0] = maze[4, 0] = maze[5, 0] = 255;
+            //maze[2, 1] = maze[3, 1] = maze[4, 1] = maze[5, 1] = 255;
+            //maze[3, 2] = 255;
+            //maze[9, 3] = maze[9, 4] = maze[8, 4] = 255;
+
+            // here need to convert layout value ino maze value (4th upper bits ONLY !)
+            // easier to set them in layout directly !
+
+            // WARNING: when modifying grid size => layout may be over the new size !
+            if (_layout != null)
+            {
+                for (UInt16 x = 0; x < _layout.width; x++)
+                {
+                    for (UInt16 y = 0; y < _layout.height; y++)
+                    {
+                        // test not needed
+                        if (_layout.layout[x, y] != 0)
+                        {
+                            Byte value = 255; // (Byte)(255 - _layout.layout[x, y] + 1);
+                            maze[x, y] = value;
+                        }
+                    }
+                }
+            }
+
+            if (holes > 0)
+            {
+                for (Byte holesCount = 0; holesCount < holes; holesCount++)
+                {
+                    Byte holex = (Byte)random.Next(width);
+                    Byte holey = (Byte)random.Next(length);
+
+                    maze[holex, holey] = 255;
+
+                    Byte blocktiles = (Byte)random.Next(3, 10);
+                    //Debug.Print(string.Format("bt={0}", blocktiles));
+
+                    for (Byte index = 0; index < blocktiles; index++)
+                    {
+                        while (holex + xr < 0 || holex + xr >= maze.GetLength(0))
+                        {
+                            xr = (sbyte)random.Next(-radius, radius);
+                        }
+
+                        while (holey + yr < 0 || holey + yr >= maze.GetLength(1))
+                        {
+                            yr = (sbyte)random.Next(-radius, radius);
+                        }
+
+                        //Debug.Print(string.Format("x={0} y={1}", holex + xr, holey + yr));
+                        // if holex + xr outside arrtay range => generate again
+                        maze[holex + xr, holey + yr] = 255;
+
+                        xr = -127;
+                        yr = -127;
+                    }
+
+                    //for each holes: get neighboors cells, "fill" them
+                }
+            }
+
+            return maze;
         }
 
 
@@ -90,12 +171,6 @@ namespace MazeLib
             UInt16 y = (Byte)(random.Next(maze.GetLength(1) - 1) + 1);
             Int16 nx;
             Int16 ny;
-
-
-            //Tmp for test
-            //x = 0;
-            //y = 0;
-            //Debug.Print(string.Format("start [{0},{1}]={2}", x, y, maze[x,y]));
 
             cells.Add(new UInt16[2] { x, y });
 
@@ -190,60 +265,7 @@ namespace MazeLib
             }
         }
 
-
-        // layout here
-        // "holes" : layout.addholes(number, maxradius)
-        public Byte[,] BuildBaseMaze(UInt16 width, UInt16 length, Byte holes = 0, Byte radius = 0)
-        {
-            Byte[,] maze = new Byte[width, length];
-            sbyte xr = -127, yr = -127;
-
-            // Example of solid wall, allowing to shape the maze and make it less looks like a mere "boring square"
-            //maze[2, 0] = maze[3, 0] = maze[4, 0] = maze[5, 0] = 255;
-            //maze[2, 1] = maze[3, 1] = maze[4, 1] = maze[5, 1] = 255;
-            //maze[3, 2] = 255;
-            //maze[9, 3] = maze[9, 4] = maze[8, 4] = 255;
-
-            if (holes > 0)
-            {
-                for (Byte holesCount = 0; holesCount < holes; holesCount++)
-                {
-                    Byte holex = (Byte)random.Next(width);
-                    Byte holey = (Byte)random.Next(length);
-
-                    maze[holex, holey] = 255;
-
-                    Byte blocktiles = (Byte)random.Next(3, 10);
-                    //Debug.Print(string.Format("bt={0}", blocktiles));
-
-                    for (Byte index = 0; index < blocktiles; index++)
-                    {
-                        while (holex + xr < 0 || holex + xr >= maze.GetLength(0))
-                        {
-                            xr = (sbyte)random.Next(-radius, radius);
-                        }
-
-                        while (holey + yr < 0 || holey + yr >= maze.GetLength(1))
-                        {
-                            yr = (sbyte)random.Next(-radius, radius);
-                        }
-
-                        //Debug.Print(string.Format("x={0} y={1}", holex + xr, holey + yr));
-                        // if holex + xr outside arrtay range => generate again
-                        maze[holex + xr, holey + yr] = 255;
-
-                        xr = -127;
-                        yr = -127;
-                    }
-
-                    //for each holes: get neighboors cells, "fill" them
-                }
-            }
-
-            return maze;
-        }
-
-
+        
         public void dumpMaze()
         {
             if (maze != null)
@@ -266,7 +288,7 @@ namespace MazeLib
         public UInt16 chooseIndex(UInt16 max, PickMethod pickmet)
         {
             UInt16 index = 0;
-            bool skip = false;
+            //bool skip = false;
 
             switch (pickmet)
             {
@@ -484,22 +506,13 @@ namespace MazeLib
         }
 
 
+        // maybe later
         private void loadMaze()
         {
         }
 
 
         private void saveMaze()
-        {
-        }
-
-
-        private void loadLayout()
-        {
-        }
-
-
-        private void saveLayout()
         {
         }
     }

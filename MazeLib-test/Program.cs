@@ -11,7 +11,7 @@ namespace MazeLib_test
     {
         static void Main(string[] args)
         {
-            Maze maze1 = new Maze(10, 10, 5, 3);
+            Maze maze1 = new Maze(10, 10, null, 5, 3);
 
             maze1.GenerateTWMaze_GrowingTree();
             maze1.dumpMaze();

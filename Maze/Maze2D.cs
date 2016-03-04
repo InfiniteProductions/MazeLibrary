@@ -51,25 +51,25 @@ namespace MazeLib
             // Grid H/V *3 = settings
             if ((direction & Direction.North) == 0)
             {
-                northwall = new Rectangle(screencel[0], screencel[1] - grid.gridsizeV, grid.tilesizeH, grid.gridsizeV * 3);
+                northwall = new Rectangle(screencel[0], screencel[1] - grid.gridthicknessH, grid.tilesizeH, grid.gridthicknessV * 3);
                 wallcolor[0] = Color.Black; //Color.Blue;
             }
 
             if ((direction & Direction.West) == 0)
             {
-                eastwall = new Rectangle(screencel[0] - grid.gridsizeH, screencel[1], grid.gridsizeH * 3, grid.tilesizeV);
+                eastwall = new Rectangle(screencel[0] - grid.gridthicknessH, screencel[1], grid.gridthicknessV * 3, grid.tilesizeV);
                 wallcolor[1] = Color.Black; //Color.GreenYellow;
             }
 
             if ((direction & Direction.South) == 0)
             {
-                southhwall = new Rectangle(screencel[0], screencel[1] + grid.tilesizeV - grid.gridsizeV, grid.tilesizeH, grid.gridsizeV * 3);
+                southhwall = new Rectangle(screencel[0], screencel[1] + grid.tilesizeV - grid.gridthicknessH, grid.tilesizeH, grid.gridthicknessV * 3);
                 wallcolor[2] = Color.Black; //Color.Red;
             }
 
             if ((direction & Direction.East) == 0)
             {
-                westwall = new Rectangle(screencel[0] - grid.gridsizeH + grid.tilesizeH, screencel[1], grid.gridsizeH * 3, grid.tilesizeV);
+                westwall = new Rectangle(screencel[0] - grid.gridthicknessH + grid.tilesizeH, screencel[1], grid.gridthicknessV * 3, grid.tilesizeV);
                 wallcolor[3] = Color.Black;
             }
 

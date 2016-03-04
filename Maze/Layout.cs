@@ -13,6 +13,8 @@ namespace MazeLib
 
     public class Layout
     {
+        public const string layoutDirectory = @"D:\mazelayouts\";
+
         // ~ 0 = transparent => background color is free
         public Color[] defaultColors = { Color.White, Color.LightSeaGreen, Color.OrangeRed, Color.DeepSkyBlue, Color.Yellow, Color.Black, Color.MediumTurquoise, Color.Red, Color.Red, Color.Red };
         //default color: empty cell, wall, start, exit, ...
@@ -26,7 +28,7 @@ namespace MazeLib
 
         public List<GridCell> CellsToDraw;
 
-
+        
         public Layout(UInt16 nbcellsH = 10, UInt16 nbcellsV = 10)
         {
             width = nbcellsH;
@@ -60,11 +62,12 @@ namespace MazeLib
         }
 
 
+        // ~both methods return true/false or status in case of issue
         public void SaveLayout(Byte index)
         {
             GenerateMazeLayout();
 
-            using (BinaryWriter bwriter = new BinaryWriter(File.Open("m" + index.ToString() + ".layout", FileMode.Create)))
+            using (BinaryWriter bwriter = new BinaryWriter(File.Open(layoutDirectory + "m" + index.ToString() + ".layout", FileMode.Create)))
             {
                 bwriter.Write(layoutVersionString + index.ToString());
                 bwriter.Write(width);
@@ -89,9 +92,9 @@ namespace MazeLib
         // sep => layout/cell list as output param + update grid outside
         public void LoadLayout(Byte index)
         {
-            if (File.Exists("m" + index.ToString() + ".layout") == true)
+            if (File.Exists(layoutDirectory + "m" + index.ToString() + ".layout") == true)
             {
-                using (BinaryReader breader = new BinaryReader(File.Open("m" + index.ToString() + ".layout", FileMode.Open)))
+                using (BinaryReader breader = new BinaryReader(File.Open(layoutDirectory + "m" + index.ToString() + ".layout", FileMode.Open)))
                 {
                     string fileformatversion = breader.ReadString();
 

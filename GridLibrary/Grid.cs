@@ -18,8 +18,8 @@ namespace GridLibrary
     {
         public UInt16 offsetx,
                     offsety,
-                    gridsizeH,
-                    gridsizeV,
+                    gridthicknessH,
+                    gridthicknessV,
                     tilesizeH,
                     tilesizeV,
                     actualWidth,
@@ -37,45 +37,66 @@ namespace GridLibrary
 
         public UInt16 offsetx { get; private set; }
         public UInt16 offsety { get; private set; }
-        public UInt16 gridsizeH { get; private set; }
-        public UInt16 gridsizeV { get; private set; }
+
+        public UInt16 gridthicknessH { get; private set; }
+        public UInt16 gridthicknessV { get; private set; }
+
+        public UInt16 nbtilesH { get; private set; }
+        public UInt16 nbtilesV { get; private set; }
+
         public UInt16 tilesizeH { get; private set; }
         public UInt16 tilesizeV { get; private set; }
+
         public UInt16 actualWidth { get; private set; }
         public UInt16 actualHeight { get; private set; }
 
 
-
+        // need a way to "force" w/h to be at some value
         public Grid(Game game, GraphicsDeviceManager graphics, SpriteBatch spriteBatch, GridData gridData)
         {
             this.graphics = graphics;
             this.spriteBatch = spriteBatch;
 
-            //spriteBatch = new SpriteBatch(game.GraphicsDevice);
-
             offsetx = gridData.offsetx;
             offsety = gridData.offsety;
-            gridsizeH = gridData.gridsizeH;
-            gridsizeV = gridData.gridsizeV;
+            gridthicknessH = gridData.gridthicknessH;
+            gridthicknessV = gridData.gridthicknessV;
             tilesizeH = gridData.tilesizeH;
             tilesizeV = gridData.tilesizeV;
+
 
             texture = new Texture2D(this.graphics.GraphicsDevice, 1, 1);
             texture.SetData(new Color[] { Color.White });
         }
 
 
+        public void defineTexture(Texture2D newTexture)
+        {
+            if (newTexture == null)
+                return;
+
+            if (texture != null)
+                texture.Dispose();
+
+            texture = newTexture;
+        }
+
+
+        // ~new way to defined grid size: by setting tilesize (for game layout editor with controls: 64x64 as much as possible on a given surface size)
         public void updateGrid(UInt16 nbcellsH, UInt16 nbcellsV, UInt16 width, UInt16 height)
         {
             System.Diagnostics.Debug.Print(string.Format("upd={0} {1} {2} {3}", nbcellsH, nbcellsV, width, height));
 
+            nbtilesH = nbcellsH;
+            nbtilesV = nbcellsV;
+
             // to update with mazeeditor changes
-            tilesizeH = (UInt16)((width - (nbcellsH + 1) * gridsizeH) / nbcellsH);
-            tilesizeV = (UInt16)((height - (nbcellsV + 1) * gridsizeV) / nbcellsV);
+            tilesizeH = (UInt16)((width - (nbcellsH + 1) * gridthicknessH) / nbcellsH);
+            tilesizeV = (UInt16)((height - (nbcellsV + 1) * gridthicknessV) / nbcellsV);
 
             // if sizes > screen/window get the closest available
-            actualWidth = (UInt16)((nbcellsH * tilesizeH) + (nbcellsH + 1) * gridsizeH);
-            actualHeight = (UInt16)((nbcellsV * tilesizeV) + (nbcellsV + 1) * gridsizeV);
+            actualWidth = (UInt16)((nbcellsH * tilesizeH) + (nbcellsH + 1) * gridthicknessH);
+            actualHeight = (UInt16)((nbcellsV * tilesizeV) + (nbcellsV + 1) * gridthicknessV);
 
             System.Diagnostics.Debug.Print(string.Format("grid upd={0} {1} {2} {3}", tilesizeH, tilesizeV, actualWidth, actualHeight));
         }
@@ -89,13 +110,15 @@ namespace GridLibrary
         {
             UInt16 x, y;
 
+            // move the size calc to constructor ! ==> cells H/W ! => cells as properties
+
             // to update with mazeeditor changes
-            tilesizeH = (UInt16)((width - (nbcellsH + 1) * gridsizeH) / nbcellsH);
-            tilesizeV = (UInt16)((height - (nbcellsV + 1) * gridsizeV) / nbcellsV);
+            tilesizeH = (UInt16)((width - (nbcellsH + 1) * gridthicknessH) / nbcellsH);
+            tilesizeV = (UInt16)((height - (nbcellsV + 1) * gridthicknessV) / nbcellsV);
 
             // if sizes > screen/window get the closest available
-            actualWidth = (UInt16)((nbcellsH * tilesizeH) + (nbcellsH + 1) * gridsizeH);
-            actualHeight = (UInt16)((nbcellsV * tilesizeV) + (nbcellsV + 1) * gridsizeV);
+            actualWidth = (UInt16)((nbcellsH * tilesizeH) + (nbcellsH + 1) * gridthicknessH);
+            actualHeight = (UInt16)((nbcellsV * tilesizeV) + (nbcellsV + 1) * gridthicknessV);
 
             Rectangle background = new Rectangle(offsetx, offsety, actualWidth, actualHeight);
 
@@ -104,13 +127,13 @@ namespace GridLibrary
 
             for (x = 0; x <= nbcellsH; x++)
             {
-                Rectangle rectangle = new Rectangle(offsetx + x * (tilesizeH + gridsizeH), offsety, gridsizeH, actualHeight);
+                Rectangle rectangle = new Rectangle(offsetx + x * (tilesizeH + gridthicknessH), offsety, gridthicknessH, actualHeight);
                 spriteBatch.Draw(texture, rectangle, Color.LightGray);
             }
 
             for (y = 0; y <= nbcellsV; y++)
             {
-                Rectangle rectangle = new Rectangle(offsetx, offsety + y * (tilesizeV + gridsizeV), actualWidth, gridsizeV);
+                Rectangle rectangle = new Rectangle(offsetx, offsety + y * (tilesizeV + gridthicknessV), actualWidth, gridthicknessV);
                 spriteBatch.Draw(texture, rectangle, Color.LightGray);
             }
 
@@ -126,8 +149,8 @@ namespace GridLibrary
             // this allow to draw a rectangle right away without any further calculations
 
             // +1 here, without grid size below = cell only, no border
-            cell[0] = (UInt16)(offsetx + x * (tilesizeH + gridsizeH) + 1);
-            cell[1] = (UInt16)(offsety + y * (tilesizeV + gridsizeV) + 1);
+            cell[0] = (UInt16)(offsetx + x * (tilesizeH + gridthicknessH) + 1);
+            cell[1] = (UInt16)(offsety + y * (tilesizeV + gridthicknessV) + 1);
 
             cell[2] = (UInt16)(tilesizeH);
             cell[3] = (UInt16)(tilesizeV);
@@ -141,8 +164,8 @@ namespace GridLibrary
         {
             UInt16[] gridpos = { 0, 0 };
 
-            gridpos[0] = (UInt16)((sx - offsetx) / (tilesizeH + gridsizeH));
-            gridpos[1] = (UInt16)((sy - offsety) / (tilesizeV + gridsizeV));
+            gridpos[0] = (UInt16)((sx - offsetx) / (tilesizeH + gridthicknessH));
+            gridpos[1] = (UInt16)((sy - offsety) / (tilesizeV + gridthicknessV));
 
             return gridpos;
         }
