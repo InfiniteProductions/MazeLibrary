@@ -36,7 +36,6 @@ namespace TicTacToe_GridExample
         Rectangle destrec;
 
         bool currentPlayer;
-        //bool gameUpdated;
 
         Random cpubrain;
 
@@ -46,7 +45,6 @@ namespace TicTacToe_GridExample
             Content.RootDirectory = "Content";
 
             currentPlayer = true;
-            //gameUpdated = false;
 
             cpubrain = new Random(123456);
 
@@ -116,12 +114,10 @@ namespace TicTacToe_GridExample
                         }
 
                         currentPlayer = !currentPlayer;
-                        //gameUpdated = true;
                     }
                 }
                 else
                 {
-                    //+ check board not full
                     while (currentPlayer == false)
                     {
                         Byte x = (Byte)cpubrain.Next(0, 3);
@@ -133,7 +129,9 @@ namespace TicTacToe_GridExample
                             currentPlayer = !currentPlayer;
                         }
                     }
-                    //cpu
+
+
+                    // super basic dumbness: take the first empty cell
                     //for (Byte y = 0; y < 3 && currentPlayer == false; y++)
                     //{
                     //    for (Byte x = 0; x < 3 && currentPlayer == false; x++)
@@ -145,6 +143,8 @@ namespace TicTacToe_GridExample
                     //        }
                     //    }
                     //}
+
+                    // for a more tougher computer opponent, check this: http://neverstopbuilding.com/minimax
                 }
             }
             PreviousMouseInput = MouseInput;
@@ -161,6 +161,7 @@ namespace TicTacToe_GridExample
 
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
+            // bad for now: it use its own spritebatch
             Board.drawBaseGrid(3, 3, 600, 600);
 
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
@@ -202,6 +203,7 @@ namespace TicTacToe_GridExample
         }
 
 
+        // basic checking to know i f there is any epty cell on the board
         private bool CheckBoard()
         {
             bool canplay = false;
