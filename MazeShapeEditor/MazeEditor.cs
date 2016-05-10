@@ -60,7 +60,7 @@ namespace MazeShapeEditor
         // file index for I/O (from 0 to 9)
         Byte currentLayoutIndex;
 
-        // background rectangle of the displayd grid
+        // background rectangle of the displayed grid
         UInt16 backgroundWidth, backgroundHeight;
 
         bool layoutHasBeenUpdated = false;
@@ -180,7 +180,8 @@ namespace MazeShapeEditor
 
             if (KeyboardInput.IsKeyDown(Keys.F1) && PreviousKeyboardInput.IsKeyUp(Keys.F1))
             {
-                mazeLayout.CreatePattern(0, currentColor);
+                // add a key to define pattern (incr/dec: 0=cross, 1=diamond, 2=circle, 3=star ?)
+                mazeLayout.CreatePattern(2, currentColor);
             }
 
             if (KeyboardInput.IsKeyDown(Keys.C) && PreviousKeyboardInput.IsKeyUp(Keys.C))
