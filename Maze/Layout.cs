@@ -193,7 +193,46 @@ namespace MazeLib
             }
             else if (pattern == (Byte)LayoutPattern.Circle)
             {
+                UInt16 centreX = (UInt16)(width / 2.0);
+                UInt16 centreY = (UInt16)(height / 2.0);
+                System.Diagnostics.Debug.Print(string.Format("cx={0}, cy={1}", centreX, centreY));
+
+                if (width % 2 == 0 || height % 2 == 0)
+                {
+                    System.Diagnostics.Debug.Print("Even size(s) WARNING !!");
+                }
+
+                float maxdist = (float)(Math.Max(width / 2.0, height / 2.0));
+
+                // special case: even # cells
+                for (UInt16 x = 0; x < width; x++)
+                {
+                    for (UInt16 y = 0; y < height; y++)
+                    {
+                        System.Diagnostics.Debug.Print(string.Format("x={0}, y={1}, d={2} md={3}", x,y, distance(x, y, (int)(width / 2.0 - 1), (int)(height / 2.0 - 1)), maxdist));
+
+                        if (distance(x,y, (int)(width/2.0 - 1), (int)(height/2.0 - 1)) < maxdist)
+                        {
+                            updateCell(new[] { x, y }, colour);
+                        }
+                    }
+                }
             }
+        }
+
+
+        private float distance(int x1, int y1, int x2, int y2)
+        {
+            int dx = Math.Abs(x2 - x1);
+            int dy = Math.Abs(y2 - y1);
+
+            int min = Math.Min(dx, dy);
+            int max = Math.Max(dx, dy);
+
+            int diagonalSteps = min;
+            int straightSteps = max - min;
+
+            return (float)(Math.Sqrt(2) * diagonalSteps + straightSteps);
         }
     }
 }
