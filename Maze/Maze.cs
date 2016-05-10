@@ -17,7 +17,8 @@ namespace MazeLib
     public class Maze
     {
         public Byte[,] maze { get; private set; }
-        
+        public Byte[,] blockmaze { get; private set; }
+
         public UInt16 width { get; private set; }
         public UInt16 length { get; private set; }
 
@@ -51,7 +52,6 @@ namespace MazeLib
 
             pickMethod = pimet;
 
-            // layout here 
            maze = BuildBaseMaze(this.width, this.length, this.layout, this.holes, this.holesMaxRadius);
            
         }
@@ -59,7 +59,6 @@ namespace MazeLib
 
         public void Reset()
         {
-            // layout here too
             maze = BuildBaseMaze(width, length, layout, this.holes, this.holesMaxRadius);
         }
 
@@ -452,6 +451,7 @@ namespace MazeLib
         }
 
 
+        // convert a line-wise maze to ablock-wise maze
         public Byte[,] LineToBlock()
         {
             Byte[,] blockmaze;
@@ -502,7 +502,53 @@ namespace MazeLib
                 }
             }
 
+            // need improvement, obviously
+            this.blockmaze = blockmaze;
+
             return blockmaze;
+        }
+
+
+        // Scale a maze by a given (integer) factor
+        // so instead of having a 1 tile sized blokc mazes, you could play with bigger size for not only Pac-Man style degree of freedom
+        // NOTE: work on blockwise maze ONLY !
+        public Byte[,] scaleMaze(Byte Scale)
+        {
+            if (blockmaze == null)
+            {
+                // build a blockwise maze first
+                return null;
+            }
+
+            Byte[,] biggerMaze = new Byte[blockmaze.GetLength(0) * Scale, blockmaze.GetLength(1) * Scale];
+
+            for (UInt16 y = 0; y < blockmaze.GetLength(1); y++)
+            {
+                for (UInt16 x = 0; x < blockmaze.GetLength(0); x++)
+                {
+                    //System.Diagnostics.Debug.Print(string.Format("Block [{0},{1}] = {2}", x,y,blockmaze[x,y]));
+
+                    for (UInt16 sy = 0; sy < Scale; sy++)
+                    {
+                        for (UInt16 sx = 0; sx < Scale; sx++)
+                        {
+                            biggerMaze[Scale * x + sx, Scale * y + sy] = blockmaze[x, y];
+                            //System.Diagnostics.Debug.Print(string.Format("BIG Block [{0},{1}] = {2}", Scale * x + sx, Scale * y + sy, blockmaze[x, y]));
+                        }
+                    }
+                }
+            }
+
+            return biggerMaze;
+        }
+
+
+        // for big maze: cut/damage walls randomly: straight wall => parts have collapsed : holes, rounder corners, ...
+        public Byte[,] erodeMaze(float ErosionFactor)
+        {
+            Byte[,] oldMaze = new Byte[maze.GetLength(0), maze.GetLength(1)];
+
+            return oldMaze;
         }
 
 
@@ -515,5 +561,10 @@ namespace MazeLib
         private void saveMaze()
         {
         }
+
+
+        //~ maze pack/unpack
+        // 4 Bytes = 1 int(32)
+        // or even 8 b = 1 int (if only binary values are used) => save memory for blockwise maze
     }
 }
